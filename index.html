@@ -1,0 +1,71 @@
+<script>
+
+  var user_input = prompt ("Введите номер кредитной карты")
+
+  console.log (createCard (user_input));
+
+  function createCard (ccn) {
+
+    var isCorrect = isValidCCN (ccn);
+
+    console.log (isCorrect);
+    /*
+    return {
+      card: “2235778899000016”,
+      correct: true, //or false
+      paymentSystem: “visa”, //or another
+      accepted: true //or false
+    };
+    */
+  }
+
+  /*
+  The Luhn Formula:
+  Drop the last digit from the number. The last digit is what we want to check against
+  Reverse the numbers
+  Multiply the digits in odd positions (1, 3, 5, etc.) by 2 and subtract 9 to all any result higher than 9
+  Add all the numbers together
+  The check digit (the last number of the card) is the amount that you would need to add to get a multiple of 10 (Modulo 10)
+  */
+  function isValidCCN (ccn) {
+    var ccn_digits = ccn.split("");
+    if (ccn_digits.length != 16) { throw "Invalid number of digits"; }
+    var control_digit = ccn_digits.pop();
+    return control_digit ==
+      ccn_digits.
+        reverse().
+        map ((el,i) => i % 2 == 0 ? el*2 : el*1).
+        reduce ((el,acc) => acc + el, 0)
+        % 10;
+    /*
+    var  = ccn_digits.reverse();
+    console.log (reversed); // debug
+    var mapped = reversed.map ((el,i) => i % 2 == 0 ? el*2 : el*1);
+    console.log (mapped); // debug
+    var summed = mapped.
+    console.log (summed); // debug
+    return summed % 10 == control_digit;
+    */
+  }
+
+  /*
+  Maestro	5018, 5020, 5038, 5893, 6304, 6759, 6761, 6762, 6763
+  MasterCard	51, 52, 53, 54, 55, 222100-272099
+  Visa	4
+  */
+  function getPaymentSystem (ccn) {
+
+    const Maestro_prefix = ["5018", "5020", "5038", "5893", "6304", "6759", 6761, 6762, 6763];
+    const MasterCard_prefix = ["51", "52", "53", "54", "55"];
+    const MasterCard_prfx_range_start = "222100";
+    const MasterCard_prfx_range_end = "272099";
+    const Visa_first_digit = "4";
+
+    return "visa";
+  }
+
+  function isAcceptedPS (ccn) {
+    return ["visa", "mastercard", "maestro"].includes (getPaymentSystem (ccn));
+  }
+
+</script>
