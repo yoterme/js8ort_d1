@@ -38,19 +38,21 @@
   function isValidCCN (ccn) {
     var ccn_digits = ccn.split("");
     if (ccn_digits.length != 16) { throw "Invalid number of digits"; }
-    var control_digit = ccn_digits.pop();
+    return (1*ccn_digits.pop() +
+              ccn_digits
+                .reverse()
+                .map ((el,i) => (i+1) % 2 != 0 ? (el*2 > 9 ? el*2 - 9 : el*2) : el*1)
+                .reduce((el,acc) => acc + el, 0))
+            % 10 == 0;
     /*
-    return control_digit ==
-      ccn_digits
-        .reverse()
-        .map ((el,i) => i % 2 != 0 ? (el*2 > 9 ? el*2 - 9 : el*2)  : el*1)
-        .reduce ((el,acc) => acc + el, 0)
-        % 10;
-    */
     var reversed = ccn_digits.reverse();
+    console.log (reversed);
     var mapped = reversed.map ((el,i) => (i+1) % 2 != 0 ? (el*2 > 9 ? el*2 - 9 : el*2) : el*1);
+    console.log (mapped);
     var summed = mapped.reduce((el,acc) => acc + el, 0);
-    return summed % 10 == control_digit;
+    console.log(summed);
+    return (summed + 1*control_digit) % 10 == 0
+    */
   }
 
   function getPaymentSystem (ccn) {
