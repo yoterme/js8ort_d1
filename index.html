@@ -1,23 +1,37 @@
 <script>
 
-  var user_input = prompt ("Введите номер кредитной карты")
+  var user_input = prompt ("Введите номер кредитной карты");
 
-  console.log (createCard (user_input));
+  console.log (user_input); // DEBUG:
+
+  var ccn = user_input.split(' ').join('').split('-').join('');
+
+  console.log (ccn); // DEBUG:
+
+  console.log (createCard (ccn));
 
   function createCard (ccn) {
 
     var isCorrect = isValidCCN (ccn);
 
-    console.log (isCorrect);
-    /*
-    return {
-      card: “2235778899000016”,
-      correct: true, //or false
-      paymentSystem: “visa”, //or another
-      accepted: true //or false
-    };
-    */
+    console.log (isCorrect); // DEBUG:
+
+    if (isCorrect) {
+      return {
+        card:          ccn,
+        correct:       true,
+        paymentSystem: isAcceptedPS(ccn) ? getPaymentSystem(ccn) : "",
+        accepted:      isAcceptedPS(ccn)
+      };
+    }
+    else {
+      return {
+        card:    ccn,
+        correct: false
+      };
+    }
   }
+
 
   /*
   The Luhn Formula:
@@ -31,37 +45,54 @@
     var ccn_digits = ccn.split("");
     if (ccn_digits.length != 16) { throw "Invalid number of digits"; }
     var control_digit = ccn_digits.pop();
-    return control_digit ==
-      ccn_digits.
-        reverse().
-        map ((el,i) => i % 2 == 0 ? el*2 : el*1).
-        reduce ((el,acc) => acc + el, 0)
-        % 10;
     /*
-    var  = ccn_digits.reverse();
+    return control_digit ==
+      ccn_digits
+        .reverse()
+        .map ((el,i) => i % 2 != 0 ? (el*2 > 9 ? el*2 - 9 : el*2)  : el*1)
+        .reduce ((el,acc) => acc + el, 0)
+        % 10;
+    */
+    var reversed = ccn_digits.reverse();
     console.log (reversed); // debug
-    var mapped = reversed.map ((el,i) => i % 2 == 0 ? el*2 : el*1);
+    var mapped = reversed.map ((el,i) => (i+1) % 2 != 0 ? (el*2 > 9 ? el*2 - 9 : el*2) : el*1);
     console.log (mapped); // debug
-    var summed = mapped.
+    var summed = mapped.reduce((el,acc) => acc + el, 0);
     console.log (summed); // debug
     return summed % 10 == control_digit;
-    */
   }
 
-  /*
-  Maestro	5018, 5020, 5038, 5893, 6304, 6759, 6761, 6762, 6763
-  MasterCard	51, 52, 53, 54, 55, 222100-272099
-  Visa	4
-  */
   function getPaymentSystem (ccn) {
 
-    const Maestro_prefix = ["5018", "5020", "5038", "5893", "6304", "6759", 6761, 6762, 6763];
+    const Maestro_prefix = ["5018", "5020", "5038", "5893", "6304", "6759", "6761", "6762", "6763"];
     const MasterCard_prefix = ["51", "52", "53", "54", "55"];
     const MasterCard_prfx_range_start = "222100";
     const MasterCard_prfx_range_end = "272099";
     const Visa_first_digit = "4";
 
-    return "visa";
+    // match Maestro
+    var prefix_4d = ccn.substring(0,4);
+    if (Maestro_prefix.includes(prefix_4d)) {
+      return "maestro";
+    }
+
+    // match MasterCard
+    var prefix_2d = ccn.substring(0,2);
+    if (MasterCard_prefix.includes (prefix_2d)) {
+      return "mastercard";
+    }
+
+    var prefix_6d = ccn.substring(0.6);
+    if (prefix_6d >= MasterCard_prfx_range_start
+      && prefix_6d <= MasterCard_prfx_range_end)
+    {
+      return "mastercard";
+    }
+
+    // match visa
+    if (ccn[0] == Visa_first_digit) {
+      return "visa";
+    }
   }
 
   function isAcceptedPS (ccn) {
