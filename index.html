@@ -2,11 +2,7 @@
 
   var user_input = prompt ("Введите номер кредитной карты");
 
-  console.log (user_input); // DEBUG:
-
   var ccn = user_input.split(' ').join('').split('-').join('');
-
-  console.log (ccn); // DEBUG:
 
   console.log (createCard (ccn));
 
@@ -54,11 +50,8 @@
         % 10;
     */
     var reversed = ccn_digits.reverse();
-    console.log (reversed); // debug
     var mapped = reversed.map ((el,i) => (i+1) % 2 != 0 ? (el*2 > 9 ? el*2 - 9 : el*2) : el*1);
-    console.log (mapped); // debug
     var summed = mapped.reduce((el,acc) => acc + el, 0);
-    console.log (summed); // debug
     return summed % 10 == control_digit;
   }
 
